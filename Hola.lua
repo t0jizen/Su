@@ -3,7 +3,6 @@
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
@@ -15,17 +14,16 @@ local MAIN_COLOR = Color3.fromRGB(20, 20, 25) -- Color oscuro para el panel late
 local SECONDARY_COLOR = Color3.fromRGB(30, 30, 35) -- Color para los botones
 local TEXT_COLOR = Color3.fromRGB(255, 255, 255) -- Texto blanco
 local HIGHLIGHT_COLOR = Color3.fromRGB(0, 170, 255) -- Azul brillante para selección
-local TRANSPARENCY = 0 -- Sin transparencia para mejor visibilidad
 
--- Categorías para el menú lateral y pestañas superiores
+-- Categorías para el menú lateral y pestañas superiores con iconos de texto
 local CATEGORIES = {
-    {Name = "Shoots", Icon = "rbxassetid://7072707179"}, -- Icono de balón
-    {Name = "Passes", Icon = "rbxassetid://7072706318"}, -- Icono de pase
-    {Name = "Dribbling", Icon = "rbxassetid://7072706896"}, -- Icono de dribling
-    {Name = "Misc", Icon = "rbxassetid://7072706674"}, -- Icono de configuración
-    {Name = "Modes", Icon = "rbxassetid://7072715646"}, -- Icono de modos
-    {Name = "Goalkeeping", Icon = "rbxassetid://7072724538"}, -- Icono de portero
-    {Name = "Visuals", Icon = "rbxassetid://7072706763"}, -- Icono de visuales
+    {Name = "Shoots", Icon = "⚽"},
+    {Name = "Passes", Icon = "↗"},
+    {Name = "Dribbling", Icon = "↪"},
+    {Name = "Misc", Icon = "⚙"},
+    {Name = "Modes", Icon = "$"},
+    {Name = "Goalkeeping", Icon = "👐"},
+    {Name = "Visuals", Icon = "👁"},
 }
 
 -- Crear la interfaz principal
@@ -42,13 +40,14 @@ local function CreateMainUI()
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     screenGui.Parent = playerGui
     
+    -- NO crear fondo azul que impida ver
+    
     -- Crear panel lateral
     local sidePanel = Instance.new("Frame")
     sidePanel.Name = "SidePanel"
     sidePanel.Size = UDim2.new(0, 140, 1, 0)
     sidePanel.Position = UDim2.new(0, 0, 0, 0)
     sidePanel.BackgroundColor3 = MAIN_COLOR
-    sidePanel.BackgroundTransparency = TRANSPARENCY
     sidePanel.BorderSizePixel = 0
     sidePanel.Parent = screenGui
     
@@ -58,7 +57,6 @@ local function CreateMainUI()
     titleFrame.Size = UDim2.new(1, 0, 0, 40)
     titleFrame.Position = UDim2.new(0, 0, 0, 0)
     titleFrame.BackgroundColor3 = MAIN_COLOR
-    titleFrame.BackgroundTransparency = TRANSPARENCY
     titleFrame.BorderSizePixel = 0
     titleFrame.Parent = sidePanel
     
@@ -87,7 +85,6 @@ local function CreateMainUI()
     tabsFrame.Size = UDim2.new(1, -140, 0, 40)
     tabsFrame.Position = UDim2.new(0, 140, 0, 0)
     tabsFrame.BackgroundColor3 = MAIN_COLOR
-    tabsFrame.BackgroundTransparency = TRANSPARENCY
     tabsFrame.BorderSizePixel = 0
     tabsFrame.Parent = screenGui
     
@@ -136,7 +133,6 @@ local function CreateMainUI()
         categoryButton.Size = UDim2.new(1, 0, 0, 30)
         categoryButton.Position = UDim2.new(0, 0, 0, 30 * (i-1) + 10)
         categoryButton.BackgroundColor3 = MAIN_COLOR
-        categoryButton.BackgroundTransparency = TRANSPARENCY
         categoryButton.BorderSizePixel = 0
         categoryButton.Parent = categoryContainer
         
@@ -162,13 +158,16 @@ local function CreateMainUI()
         buttonText.TextXAlignment = Enum.TextXAlignment.Left
         buttonText.Parent = categoryButton
         
-        -- Icono para el botón
-        local icon = Instance.new("ImageLabel")
+        -- Icono para el botón (usando texto en lugar de imágenes)
+        local icon = Instance.new("TextLabel")
         icon.Name = "Icon"
-        icon.Size = UDim2.new(0, 16, 0, 16)
-        icon.Position = UDim2.new(0, 8, 0.5, -8)
+        icon.Size = UDim2.new(0, 20, 0, 20)
+        icon.Position = UDim2.new(0, 5, 0.5, -10)
         icon.BackgroundTransparency = 1
-        icon.Image = category.Icon
+        icon.Text = category.Icon
+        icon.TextColor3 = Color3.fromRGB(200, 200, 200)
+        icon.TextSize = 14
+        icon.Font = Enum.Font.GothamBold
         icon.Parent = categoryButton
         
         -- Pestaña superior
@@ -177,7 +176,6 @@ local function CreateMainUI()
         tab.Size = UDim2.new(1/#CATEGORIES, 0, 1, 0)
         tab.Position = UDim2.new((i-1)/#CATEGORIES, 0, 0, 0)
         tab.BackgroundColor3 = SECONDARY_COLOR
-        tab.BackgroundTransparency = TRANSPARENCY
         tab.BorderSizePixel = 0
         tab.Parent = tabsFrame
         
@@ -202,13 +200,16 @@ local function CreateMainUI()
         tabText.Font = Enum.Font.Gotham
         tabText.Parent = tab
         
-        -- Icono para la pestaña
-        local tabIcon = Instance.new("ImageLabel")
+        -- Icono para la pestaña (usando texto en lugar de imágenes)
+        local tabIcon = Instance.new("TextLabel")
         tabIcon.Name = "Icon"
-        tabIcon.Size = UDim2.new(0, 16, 0, 16)
-        tabIcon.Position = UDim2.new(0.5, -8, 0, 5)
+        tabIcon.Size = UDim2.new(0, 20, 0, 20)
+        tabIcon.Position = UDim2.new(0, 5, 0, 5)
         tabIcon.BackgroundTransparency = 1
-        tabIcon.Image = category.Icon
+        tabIcon.Text = category.Icon
+        tabIcon.TextColor3 = Color3.fromRGB(200, 200, 200)
+        tabIcon.TextSize = 14
+        tabIcon.Font = Enum.Font.GothamBold
         tabIcon.Parent = tab
         
         -- Contenedor de contenido para esta categoría
@@ -238,32 +239,32 @@ local function CreateMainUI()
     return screenGui
 end
 
--- Función para mostrar/ocultar la UI
-local isUIVisible = true
-local mainUI = nil
+-- Variable global para la UI
+_G.FootballUI = nil
 
+-- Función para mostrar/ocultar la UI
 local function ToggleUI()
-    isUIVisible = not isUIVisible
-    
-    if isUIVisible then
-        if not mainUI or not mainUI.Parent then
-            mainUI = CreateMainUI()
-        end
-        mainUI.Enabled = true
+    if _G.FootballUI and _G.FootballUI.Parent then
+        _G.FootballUI:Destroy()
+        _G.FootballUI = nil
     else
-        if mainUI then
-            mainUI.Enabled = false
-        end
+        _G.FootballUI = CreateMainUI()
     end
 end
 
 -- Conectar tecla para mostrar/ocultar la UI (RightShift)
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
+local connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == Enum.KeyCode.RightShift then
         ToggleUI()
     end
 end)
 
 -- Crear la UI inicialmente
-mainUI = CreateMainUI()
-mainUI.Enabled = true
+_G.FootballUI = CreateMainUI()
+
+-- Asegurarse de que la conexión se limpie cuando el script se detenga
+script.Destroyed:Connect(function()
+    if connection then
+        connection:Disconnect()
+    end
+end)
