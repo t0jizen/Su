@@ -1,28 +1,36 @@
--- Crear un ScreenGui para mostrar la interfaz
+-- Crear el ScreenGui y Frame principal
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- Crear el Frame que se podrá mover
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 300, 0, 150)
 frame.Position = UDim2.new(0.5, -150, 0.5, -75)
 frame.BackgroundColor3 = Color3.fromRGB(169, 169, 169) -- Gris
-frame.BackgroundTransparency = 0.5 -- 50% transparente
+frame.BackgroundTransparency = 0.5 -- 50% de transparencia
 frame.Parent = screenGui
 
--- Crear un tab (barra de arrastre) visualmente distinta
+-- Crear la barra arrastrable (tab) en la parte superior
 local dragTab = Instance.new("Frame")
-dragTab.Size = UDim2.new(1, 0, 0, 30)  -- Tamaño de la barra de arrastre
-dragTab.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- Color Rojo para la parte arrastrable
-dragTab.Position = UDim2.new(0, 0, 0, 0) -- Colocarlo en la parte superior del frame
+dragTab.Size = UDim2.new(1, 0, 0, 30) -- Barra de arrastre
+dragTab.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Rojo brillante
+dragTab.Position = UDim2.new(0, 0, 0, 0) -- Barra en la parte superior
 dragTab.Parent = frame
 
--- Variables para controlar el arrastre
+-- Crear un texto en la parte arrastrable para mostrar que es interactivo
+local dragText = Instance.new("TextLabel")
+dragText.Size = UDim2.new(1, 0, 1, 0)
+dragText.Text = "Arrástrame"
+dragText.TextSize = 20
+dragText.TextColor3 = Color3.fromRGB(255, 255, 255) -- Texto blanco
+dragText.BackgroundTransparency = 1 -- Sin fondo
+dragText.Parent = dragTab
+
+-- Variables para manejar el arrastre
 local dragging = false
 local dragStart = nil
 local startPos = nil
 
--- Función para empezar a arrastrar
+-- Función para comenzar a arrastrar
 dragTab.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
@@ -31,7 +39,7 @@ dragTab.InputBegan:Connect(function(input)
     end
 end)
 
--- Función para mover el frame durante el arrastre
+-- Función para mover el frame mientras se arrastra
 dragTab.InputChanged:Connect(function(input)
     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
@@ -46,16 +54,16 @@ dragTab.InputEnded:Connect(function(input)
     end
 end)
 
--- Crear el botón de texto dentro del frame
+-- Crear un texto clickeable dentro del frame
 local textButton = Instance.new("TextButton")
-textButton.Size = UDim2.new(1, 0, 1, 0) -- Rellenar todo el Frame
-textButton.Text = "Click me"
+textButton.Size = UDim2.new(1, 0, 1, 0) -- Rellenar todo el frame
+textButton.Text = "Haz clic aquí"
 textButton.TextSize = 30
 textButton.TextColor3 = Color3.fromRGB(0, 0, 0) -- Texto negro
 textButton.BackgroundTransparency = 1 -- Sin fondo
 textButton.Parent = frame
 
--- Conectar un evento para el click del botón
+-- Evento para manejar el clic en el texto
 textButton.MouseButton1Click:Connect(function()
     print("Texto presionado")
 end)
