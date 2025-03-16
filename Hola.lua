@@ -208,6 +208,8 @@ local function CreateUI()
 
     -- Hacer que el panel lateral sea arrastrable
     DragMenu(sidePanel)
+    -- Hacer que el panel superior sea arrastrable
+    DragMenu(topTabsFrame)
 
     return screenGui
 end
