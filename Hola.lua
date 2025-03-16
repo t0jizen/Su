@@ -30,7 +30,7 @@ local dragging = false
 local dragStart = nil
 local startPos = nil
 
--- Función para comenzar a arrastrar
+-- Función para comenzar a arrastrar el frame completo desde la barra de arrastre
 dragTab.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
@@ -39,7 +39,7 @@ dragTab.InputBegan:Connect(function(input)
     end
 end)
 
--- Función para mover el frame mientras se arrastra
+-- Función para mover el frame completo mientras se arrastra
 dragTab.InputChanged:Connect(function(input)
     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
