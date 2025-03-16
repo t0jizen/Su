@@ -25,6 +25,7 @@ local function CreateUI()
         playerGui:FindFirstChild("FootballUI"):Destroy()
     end
 
+    -- Crear un ScreenGui
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "FootballUI"
     screenGui.ResetOnSpawn = false
@@ -98,7 +99,7 @@ local function CreateUI()
         contentFrame.Position = UDim2.new(0, 0, 0, 0)
         contentFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
         contentFrame.BackgroundTransparency = 0.1
-        contentFrame.Visible = (i == 1)
+        contentFrame.Visible = (i == 1) -- Hacer visible el primer submenú por defecto
         contentFrame.Parent = contentContainer
 
         local contentCorner = Instance.new("UICorner")
