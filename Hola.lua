@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -8,16 +7,16 @@ local playerGui = player:WaitForChild("PlayerGui")
 -- Variables globales
 local uiVisible = false
 local mainGui = nil
+local dragging = false
+local startPos = nil
+local dragObject = nil
 
--- Categorías para el juego de fútbol
+-- Categorías de la UI
 local categories = {
-    {Name = "Shoots", Icon = "⚽"},
-    {Name = "Passes", Icon = "↗"},
-    {Name = "Dribbling", Icon = "↪"},
-    {Name = "Misc", Icon = "⚙"},
-    {Name = "Modes", Icon = "$"},
-    {Name = "Goalkeeping", Icon = "👐"},
-    {Name = "Visuals", Icon = "👁"}
+    {Name = "Shoots", Icon = "⚽", Options = {"Shot 1", "Shot 2", "Shot 3"}},
+    {Name = "Passes", Icon = "↗", Options = {"Pass 1", "Pass 2", "Pass 3"}},
+    {Name = "Dribbling", Icon = "↪", Options = {"Dribble 1", "Dribble 2", "Dribble 3"}},
+    {Name = "Misc", Icon = "⚙", Options = {"Misc 1", "Misc 2", "Misc 3"}}
 }
 
 -- Función para crear la UI
@@ -31,185 +30,142 @@ local function CreateUI()
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
 
-    -- Panel lateral (izquierda)
-    local sidePanel = Instance.new("Frame")
-    sidePanel.Name = "SidePanel"
-    sidePanel.Size = UDim2.new(0, 180, 0, 400)
-    sidePanel.Position = UDim2.new(0, 10, 0.5, -200)
-    sidePanel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    sidePanel.BackgroundTransparency = 0.1
-    sidePanel.BorderSizePixel = 0
-    sidePanel.Parent = screenGui
+    -- Panel principal
+    local mainPanel = Instance.new("Frame")
+    mainPanel.Name = "MainPanel"
+    mainPanel.Size = UDim2.new(0, 300, 0, 400)
+    mainPanel.Position = UDim2.new(0.5, -150, 0.5, -200)
+    mainPanel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    mainPanel.BorderSizePixel = 0
+    mainPanel.Parent = screenGui
 
-    -- Esquinas redondeadas para el panel lateral
-    local sidePanelCorner = Instance.new("UICorner")
-    sidePanelCorner.CornerRadius = UDim.new(0, 5)
-    sidePanelCorner.Parent = sidePanel
+    -- Esquinas redondeadas para el panel principal
+    local mainCorner = Instance.new("UICorner")
+    mainCorner.CornerRadius = UDim.new(0, 10)
+    mainCorner.Parent = mainPanel
 
-    -- Título del panel lateral
-    local titleFrame = Instance.new("Frame")
-    titleFrame.Name = "TitleFrame"
-    titleFrame.Size = UDim2.new(1, 0, 0, 40)
-    titleFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    titleFrame.BackgroundTransparency = 0.1
-    titleFrame.BorderSizePixel = 0
-    titleFrame.Parent = sidePanel
+    -- Título del panel
+    local title = Instance.new("TextLabel")
+    title.Name = "Title"
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "FOOTBALL PRO"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextSize = 20
+    title.Font = Enum.Font.GothamBold
+    title.TextXAlignment = Enum.TextXAlignment.Center
+    title.Parent = mainPanel
 
-    -- Esquinas redondeadas para el título
-    local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 5)
-    titleCorner.Parent = titleFrame
+    -- Contenedor de pestañas en la parte superior
+    local tabContainer = Instance.new("Frame")
+    tabContainer.Name = "TabContainer"
+    tabContainer.Size = UDim2.new(1, 0, 0, 40)
+    tabContainer.Position = UDim2.new(0, 0, 0, 40)
+    tabContainer.BackgroundTransparency = 1
+    tabContainer.Parent = mainPanel
 
-    -- Texto del título
-    local titleText = Instance.new("TextLabel")
-    titleText.Name = "Title"
-    titleText.Size = UDim2.new(1, -40, 1, 0)
-    titleText.Position = UDim2.new(0, 10, 0, 0)
-    titleText.BackgroundTransparency = 1
-    titleText.Text = "FOOTBALL PRO"
-    titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleText.TextSize = 18
-    titleText.Font = Enum.Font.GothamBold
-    titleText.TextXAlignment = Enum.TextXAlignment.Left
-    titleText.Parent = titleFrame
+    -- Contenedor de submenús
+    local contentContainer = Instance.new("Frame")
+    contentContainer.Name = "ContentContainer"
+    contentContainer.Size = UDim2.new(1, 0, 1, -80)
+    contentContainer.Position = UDim2.new(0, 0, 0, 80)
+    contentContainer.BackgroundTransparency = 1
+    contentContainer.Parent = mainPanel
 
-    -- Contenedor para las categorías del panel lateral
-    local categoriesContainer = Instance.new("Frame")
-    categoriesContainer.Name = "CategoriesContainer"
-    categoriesContainer.Size = UDim2.new(1, 0, 1, -40)
-    categoriesContainer.Position = UDim2.new(0, 0, 0, 40)
-    categoriesContainer.BackgroundTransparency = 1
-    categoriesContainer.Parent = sidePanel
+    -- Crear pestañas y submenús
+    local contentFrames = {}
 
-    -- Barra horizontal de pestañas en la parte superior
-    local topTabsFrame = Instance.new("Frame")
-    topTabsFrame.Name = "TopTabsFrame"
-    topTabsFrame.Size = UDim2.new(1, -200, 0, 40)
-    topTabsFrame.Position = UDim2.new(0, 190, 0, 10)
-    topTabsFrame.BackgroundTransparency = 1
-    topTabsFrame.Parent = screenGui
+    for i, category in ipairs(categories) do
+        -- Crear pestaña superior
+        local tabButton = Instance.new("TextButton")
+        tabButton.Name = category.Name .. "Tab"
+        tabButton.Size = UDim2.new(1 / #categories, -5, 1, 0)
+        tabButton.Position = UDim2.new((i - 1) / #categories, 2.5, 0, 0)
+        tabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        tabButton.BackgroundTransparency = 0.3
+        tabButton.BorderSizePixel = 0
+        tabButton.Text = category.Name
+        tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        tabButton.TextSize = 14
+        tabButton.Font = Enum.Font.GothamSemibold
+        tabButton.Parent = tabContainer
 
-    -- Contenedores para el contenido de cada categoría
-    local contentContainers = {}
+        -- Crear submenú
+        local contentFrame = Instance.new("Frame")
+        contentFrame.Name = category.Name .. "Content"
+        contentFrame.Size = UDim2.new(1, 0, 1, 0)
+        contentFrame.Position = UDim2.new(0, 0, 0, 0)
+        contentFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        contentFrame.BackgroundTransparency = 0.1
+        contentFrame.Visible = (i == 1)
+        contentFrame.Parent = contentContainer
 
-    -- Función para seleccionar una categoría
-    local function SelectCategory(index)
-        for i, tab in ipairs(topTabsFrame:GetChildren()) do
-            if tab:IsA("TextButton") then
-                tab.BackgroundTransparency = (i == index) and 0 or 0.5
+        local contentCorner = Instance.new("UICorner")
+        contentCorner.CornerRadius = UDim.new(0, 10)
+        contentCorner.Parent = contentFrame
+
+        -- Crear opciones dentro de cada submenú
+        for j, option in ipairs(category.Options) do
+            local optionButton = Instance.new("TextButton")
+            optionButton.Name = "Option" .. j
+            optionButton.Size = UDim2.new(1, -20, 0, 40)
+            optionButton.Position = UDim2.new(0, 10, 0, (j - 1) * 45 + 10)
+            optionButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+            optionButton.BackgroundTransparency = 0.2
+            optionButton.Text = option
+            optionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            optionButton.TextSize = 14
+            optionButton.Font = Enum.Font.Gotham
+            optionButton.Parent = contentFrame
+
+            local optionCorner = Instance.new("UICorner")
+            optionCorner.CornerRadius = UDim.new(0, 5)
+            optionCorner.Parent = optionButton
+        end
+
+        -- Guardar la referencia al submenú
+        contentFrames[i] = contentFrame
+
+        -- Conectar la funcionalidad de cambio de pestaña
+        tabButton.MouseButton1Click:Connect(function()
+            for _, frame in ipairs(contentFrames) do
+                frame.Visible = false
             end
-        end
-        for i, container in pairs(contentContainers) do
-            container.Visible = (i == index)
-        end
+            contentFrame.Visible = true
+        end)
     end
 
-    -- Función para arrastrar los menús
-    local function DragMenu(menuFrame)
-        local dragging, dragInput, startPos
-        menuFrame.InputBegan:Connect(function(input)
+    -- Función para arrastrar el panel
+    local function DragPanel(frame)
+        local dragging = false
+        local startPos
+        local startPosFrame
+
+        frame.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
                 dragging = true
                 startPos = input.Position
-                dragInput = input
+                startPosFrame = frame.Position
             end
         end)
 
-        menuFrame.InputChanged:Connect(function(input)
-            if dragging and input == dragInput then
+        frame.InputChanged:Connect(function(input)
+            if dragging then
                 local delta = input.Position - startPos
-                menuFrame.Position = menuFrame.Position + UDim2.new(0, delta.X, 0, delta.Y)
+                frame.Position = startPosFrame + UDim2.new(0, delta.X, 0, delta.Y)
             end
         end)
 
-        menuFrame.InputEnded:Connect(function(input)
-            if input == dragInput then
+        frame.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
                 dragging = false
             end
         end)
     end
 
-    -- Crear botones laterales y pestañas superiores para cada categoría
-    for i, category in ipairs(categories) do
-        local sideButton = Instance.new("TextButton")
-        sideButton.Name = category.Name .. "Button"
-        sideButton.Size = UDim2.new(1, 0, 0, 30)
-        sideButton.Position = UDim2.new(0, 0, 0, (i-1) * 35)
-        sideButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        sideButton.BackgroundTransparency = i == 1 and 0 or 1
-        sideButton.BorderSizePixel = 0
-        sideButton.Text = "  " .. category.Icon .. " " .. category.Name
-        sideButton.TextColor3 = i == 1 and Color3.fromRGB(0, 255, 128) or Color3.fromRGB(255, 255, 255)
-        sideButton.TextSize = 14
-        sideButton.Font = Enum.Font.Gotham
-        sideButton.TextXAlignment = Enum.TextXAlignment.Left
-        sideButton.Parent = categoriesContainer
-
-        -- Crear pestaña superior
-        local topTab = Instance.new("TextButton")
-        topTab.Name = category.Name .. "Tab"
-        topTab.Size = UDim2.new(1/#categories, -5, 1, 0)
-        topTab.Position = UDim2.new((i-1)/#categories, 2.5, 0, 0)
-        topTab.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-        topTab.BackgroundTransparency = i == 1 and 0 or 0.5
-        topTab.BorderSizePixel = 0
-        topTab.Text = category.Name
-        topTab.TextColor3 = Color3.fromRGB(255, 255, 255)
-        topTab.TextSize = 14
-        topTab.Font = Enum.Font.GothamSemibold
-        topTab.Parent = topTabsFrame
-
-        -- Crear contenedor para el contenido de esta categoría
-        local contentFrame = Instance.new("Frame")
-        contentFrame.Name = category.Name .. "Content"
-        contentFrame.Size = UDim2.new(0, 200, 0, 300)
-        contentFrame.Position = UDim2.new(0, 190, 0, 60)
-        contentFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-        contentFrame.BackgroundTransparency = 0.1
-        contentFrame.BorderSizePixel = 0
-        contentFrame.Visible = (i == 1)
-        contentFrame.Parent = screenGui
-
-        local contentCorner = Instance.new("UICorner")
-        contentCorner.CornerRadius = UDim.new(0, 5)
-        contentCorner.Parent = contentFrame
-
-        contentContainers[i] = contentFrame
-
-        -- Añadir opciones para esta categoría
-        for j = 1, 5 do
-            local option = Instance.new("TextButton")
-            option.Name = "Option" .. j
-            option.Size = UDim2.new(1, -20, 0, 30)
-            option.Position = UDim2.new(0, 10, 0, (j-1) * 35 + 10)
-            option.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            option.BackgroundTransparency = 0.5
-            option.Text = category.Name .. " Option " .. j
-            option.TextColor3 = Color3.fromRGB(255, 255, 255)
-            option.TextSize = 14
-            option.Font = Enum.Font.Gotham
-            option.Parent = contentFrame
-
-            local optionCorner = Instance.new("UICorner")
-            optionCorner.CornerRadius = UDim.new(0, 4)
-            optionCorner.Parent = option
-        end
-
-        -- Conectar eventos de clic en los botones laterales
-        sideButton.MouseButton1Click:Connect(function()
-            SelectCategory(i)
-        end)
-
-        -- Conectar eventos de clic en las pestañas superiores
-        topTab.MouseButton1Click:Connect(function()
-            SelectCategory(i)
-        end)
-    end
-
-    -- Hacer que el panel lateral sea arrastrable
-    DragMenu(sidePanel)
-    -- Hacer que el panel superior sea arrastrable
-    DragMenu(topTabsFrame)
+    -- Hacer arrastrable el panel principal
+    DragPanel(mainPanel)
 
     return screenGui
 end
@@ -242,5 +198,4 @@ UserInputService.InputBegan:Connect(onInputBegan)
 mainGui = CreateUI()
 uiVisible = true
 
--- Mensaje para confirmar que el script se ha cargado
 print("FootballUI script loaded. Press P to toggle UI.")
