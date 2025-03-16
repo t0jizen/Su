@@ -73,18 +73,6 @@ local function CreateUI()
     titleText.TextXAlignment = Enum.TextXAlignment.Left
     titleText.Parent = titleFrame
 
-    -- Botón de configuración
-    local settingsButton = Instance.new("ImageButton")
-    settingsButton.Name = "SettingsButton"
-    settingsButton.Size = UDim2.new(0, 20, 0, 20)
-    settingsButton.Position = UDim2.new(1, -30, 0.5, -10)
-    settingsButton.BackgroundTransparency = 1
-    settingsButton.Image = "rbxassetid://3926307971"
-    settingsButton.ImageRectOffset = Vector2.new(324, 124)
-    settingsButton.ImageRectSize = Vector2.new(36, 36)
-    settingsButton.ImageColor3 = Color3.fromRGB(255, 255, 255)
-    settingsButton.Parent = titleFrame
-
     -- Contenedor para las categorías del panel lateral
     local categoriesContainer = Instance.new("Frame")
     categoriesContainer.Name = "CategoriesContainer"
