@@ -1,5 +1,5 @@
 -- FootballUI.lua
--- UI para un juego de fútbol en Roblox
+-- UI simple para un juego de fútbol en Roblox
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -24,44 +24,44 @@ local function CreateUI()
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
     
-    -- Panel principal
-    local mainPanel = Instance.new("Frame")
-    mainPanel.Name = "MainPanel"
-    mainPanel.Size = UDim2.new(0, 500, 0, 350)
-    mainPanel.Position = UDim2.new(0.5, -250, 0.5, -175)
-    mainPanel.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-    mainPanel.BorderSizePixel = 0
-    mainPanel.Active = true
-    mainPanel.Draggable = true -- Hacer arrastrable directamente
-    mainPanel.Parent = screenGui
+    -- Panel principal (ventana compacta)
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Name = "MainFrame"
+    mainFrame.Size = UDim2.new(0, 350, 0, 250)
+    mainFrame.Position = UDim2.new(0.5, -175, 0.5, -125)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Active = true
+    mainFrame.Draggable = true
+    mainFrame.Parent = screenGui
     
     -- Esquinas redondeadas para el panel
     local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 10)
-    mainCorner.Parent = mainPanel
+    mainCorner.CornerRadius = UDim.new(0, 6)
+    mainCorner.Parent = mainFrame
     
     -- Barra de título
     local titleBar = Instance.new("Frame")
     titleBar.Name = "TitleBar"
-    titleBar.Size = UDim2.new(1, 0, 0, 40)
-    titleBar.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+    titleBar.Size = UDim2.new(1, 0, 0, 30)
+    titleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
     titleBar.BorderSizePixel = 0
-    titleBar.Parent = mainPanel
+    titleBar.Parent = mainFrame
     
     -- Esquinas redondeadas para la barra de título
     local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 10)
+    titleCorner.CornerRadius = UDim.new(0, 6)
     titleCorner.Parent = titleBar
     
     -- Título
     local titleText = Instance.new("TextLabel")
     titleText.Name = "Title"
-    titleText.Size = UDim2.new(1, -80, 1, 0)
-    titleText.Position = UDim2.new(0, 15, 0, 0)
+    titleText.Size = UDim2.new(1, -40, 1, 0)
+    titleText.Position = UDim2.new(0, 10, 0, 0)
     titleText.BackgroundTransparency = 1
     titleText.Text = "FOOTBALL PRO"
     titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleText.TextSize = 18
+    titleText.TextSize = 16
     titleText.Font = Enum.Font.GothamBold
     titleText.TextXAlignment = Enum.TextXAlignment.Left
     titleText.Parent = titleBar
@@ -69,47 +69,19 @@ local function CreateUI()
     -- Botón X (cerrar)
     local closeButton = Instance.new("TextButton")
     closeButton.Name = "CloseButton"
-    closeButton.Size = UDim2.new(0, 30, 0, 30)
-    closeButton.Position = UDim2.new(1, -40, 0, 5)
-    closeButton.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+    closeButton.Size = UDim2.new(0, 24, 0, 24)
+    closeButton.Position = UDim2.new(1, -27, 0, 3)
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
     closeButton.Text = "X"
     closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeButton.TextSize = 18
+    closeButton.TextSize = 14
     closeButton.Font = Enum.Font.GothamBold
     closeButton.Parent = titleBar
     
     -- Esquinas redondeadas para el botón X
     local closeCorner = Instance.new("UICorner")
-    closeCorner.CornerRadius = UDim.new(0, 15)
+    closeCorner.CornerRadius = UDim.new(0, 4)
     closeCorner.Parent = closeButton
-    
-    -- Contenedor de pestañas
-    local tabsContainer = Instance.new("Frame")
-    tabsContainer.Name = "TabsContainer"
-    tabsContainer.Size = UDim2.new(1, -20, 0, 40)
-    tabsContainer.Position = UDim2.new(0, 10, 0, 50)
-    tabsContainer.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-    tabsContainer.BorderSizePixel = 0
-    tabsContainer.Parent = mainPanel
-    
-    -- Esquinas redondeadas para el contenedor de pestañas
-    local tabsCorner = Instance.new("UICorner")
-    tabsCorner.CornerRadius = UDim.new(0, 8)
-    tabsCorner.Parent = tabsContainer
-    
-    -- Contenedor de contenido
-    local contentFrame = Instance.new("Frame")
-    contentFrame.Name = "ContentFrame"
-    contentFrame.Size = UDim2.new(1, -20, 1, -100)
-    contentFrame.Position = UDim2.new(0, 10, 0, 100)
-    contentFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-    contentFrame.BorderSizePixel = 0
-    contentFrame.Parent = mainPanel
-    
-    -- Esquinas redondeadas para el contenedor de contenido
-    local contentCorner = Instance.new("UICorner")
-    contentCorner.CornerRadius = UDim.new(0, 8)
-    contentCorner.Parent = contentFrame
     
     -- Categorías
     local categories = {
@@ -122,79 +94,94 @@ local function CreateUI()
         {Name = "Visuals", Icon = "👁"},
     }
     
-    -- Contenedores de contenido para cada categoría
-    local contentContainers = {}
+    -- Contenedor de contenido
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Name = "ContentFrame"
+    contentFrame.Size = UDim2.new(1, -20, 1, -70)
+    contentFrame.Position = UDim2.new(0, 10, 0, 60)
+    contentFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    contentFrame.BorderSizePixel = 0
+    contentFrame.Parent = mainFrame
+    
+    -- Esquinas redondeadas para el contenedor de contenido
+    local contentCorner = Instance.new("UICorner")
+    contentCorner.CornerRadius = UDim.new(0, 6)
+    contentCorner.Parent = contentFrame
+    
+    -- Contenedores para cada categoría
+    local categoryContainers = {}
     
     -- Función para seleccionar una categoría
     local function SelectCategory(index)
         -- Actualizar apariencia de pestañas
-        for i, tab in ipairs(tabsContainer:GetChildren()) do
-            if tab:IsA("TextButton") then
-                if i == index then
+        for i, tab in pairs(mainFrame:GetChildren()) do
+            if tab:IsA("TextButton") and tab.Name:find("Tab") then
+                local tabIndex = tonumber(tab.Name:match("Tab(%d+)"))
+                if tabIndex == index then
                     tab.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
                     tab.TextColor3 = Color3.fromRGB(255, 255, 255)
                 else
-                    tab.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+                    tab.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
                     tab.TextColor3 = Color3.fromRGB(200, 200, 200)
                 end
             end
         end
         
         -- Mostrar solo el contenido seleccionado
-        for i, container in pairs(contentContainers) do
+        for i, container in pairs(categoryContainers) do
             container.Visible = (i == index)
         end
     end
     
-    -- Crear pestañas y contenido
+    -- Crear pestañas
     for i, category in ipairs(categories) do
         -- Crear pestaña
         local tab = Instance.new("TextButton")
-        tab.Name = category.Name .. "Tab"
-        tab.Size = UDim2.new(1/#categories, -4, 1, -10)
-        tab.Position = UDim2.new((i-1)/#categories, 2, 0, 5)
-        tab.BackgroundColor3 = i == 1 and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(50, 50, 55)
-        tab.Text = category.Icon .. " " .. category.Name
+        tab.Name = "Tab" .. i
+        tab.Size = UDim2.new(1/#categories, -2, 0, 24)
+        tab.Position = UDim2.new((i-1)/#categories, 1, 0, 32)
+        tab.BackgroundColor3 = i == 1 and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(40, 40, 40)
+        tab.Text = category.Name
         tab.TextColor3 = i == 1 and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 200, 200)
-        tab.TextSize = 14
-        tab.Font = Enum.Font.GothamBold
-        tab.Parent = tabsContainer
+        tab.TextSize = 12
+        tab.Font = Enum.Font.GothamSemibold
+        tab.Parent = mainFrame
         
         -- Esquinas redondeadas para la pestaña
         local tabCorner = Instance.new("UICorner")
-        tabCorner.CornerRadius = UDim.new(0, 6)
+        tabCorner.CornerRadius = UDim.new(0, 4)
         tabCorner.Parent = tab
         
         -- Crear contenedor para esta categoría
         local container = Instance.new("ScrollingFrame")
         container.Name = category.Name .. "Container"
-        container.Size = UDim2.new(1, -20, 1, -20)
-        container.Position = UDim2.new(0, 10, 0, 10)
+        container.Size = UDim2.new(1, -10, 1, -10)
+        container.Position = UDim2.new(0, 5, 0, 5)
         container.BackgroundTransparency = 1
         container.BorderSizePixel = 0
         container.ScrollBarThickness = 4
         container.Visible = (i == 1) -- Solo el primero visible
         container.Parent = contentFrame
         
-        contentContainers[i] = container
+        categoryContainers[i] = container
         
-        -- Añadir algunos elementos de ejemplo
+        -- Añadir opciones para esta categoría
         for j = 1, 5 do
-            local button = Instance.new("TextButton")
-            button.Name = "Option" .. j
-            button.Size = UDim2.new(1, -10, 0, 40)
-            button.Position = UDim2.new(0, 5, 0, (j-1) * 45 + 5)
-            button.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
-            button.Text = category.Name .. " Option " .. j
-            button.TextColor3 = Color3.fromRGB(255, 255, 255)
-            button.TextSize = 14
-            button.Font = Enum.Font.Gotham
-            button.Parent = container
+            local option = Instance.new("TextButton")
+            option.Name = "Option" .. j
+            option.Size = UDim2.new(1, -10, 0, 30)
+            option.Position = UDim2.new(0, 5, 0, (j-1) * 35 + 5)
+            option.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            option.Text = category.Name .. " Option " .. j
+            option.TextColor3 = Color3.fromRGB(255, 255, 255)
+            option.TextSize = 14
+            option.Font = Enum.Font.Gotham
+            option.Parent = container
             
-            -- Esquinas redondeadas para el botón
-            local buttonCorner = Instance.new("UICorner")
-            buttonCorner.CornerRadius = UDim.new(0, 6)
-            buttonCorner.Parent = button
+            -- Esquinas redondeadas para la opción
+            local optionCorner = Instance.new("UICorner")
+            optionCorner.CornerRadius = UDim.new(0, 4)
+            optionCorner.Parent = option
         end
         
         -- Conectar evento de clic
