@@ -20,37 +20,6 @@ local categories = {
     {Name = "Visuals", Icon = "👁"}
 }
 
--- Función para hacer que los paneles sean arrastrables
-local function MakePanelDraggable(panel)
-    local dragInput, mousePos, panelPos
-    local dragging = false
-
-    local function onInputBegan(input, gameProcessed)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            mousePos = input.Position
-            panelPos = panel.Position
-        end
-    end
-
-    local function onInputChanged(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - mousePos
-            panel.Position = UDim2.new(panelPos.X.Scale, panelPos.X.Offset + delta.X, panelPos.Y.Scale, panelPos.Y.Offset + delta.Y)
-        end
-    end
-
-    local function onInputEnded(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end
-
-    panel.InputBegan:Connect(onInputBegan)
-    panel.InputChanged:Connect(onInputChanged)
-    panel.InputEnded:Connect(onInputEnded)
-end
-
 -- Función para crear la UI
 local function CreateUI()
     if playerGui:FindFirstChild("FootballUI") then
@@ -62,6 +31,68 @@ local function CreateUI()
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
 
+    -- Panel lateral (izquierda)
+    local sidePanel = Instance.new("Frame")
+    sidePanel.Name = "SidePanel"
+    sidePanel.Size = UDim2.new(0, 180, 0, 400)
+    sidePanel.Position = UDim2.new(0, 10, 0.5, -200)
+    sidePanel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    sidePanel.BackgroundTransparency = 0.1
+    sidePanel.BorderSizePixel = 0
+    sidePanel.Parent = screenGui
+
+    -- Esquinas redondeadas para el panel lateral
+    local sidePanelCorner = Instance.new("UICorner")
+    sidePanelCorner.CornerRadius = UDim.new(0, 5)
+    sidePanelCorner.Parent = sidePanel
+
+    -- Título del panel lateral
+    local titleFrame = Instance.new("Frame")
+    titleFrame.Name = "TitleFrame"
+    titleFrame.Size = UDim2.new(1, 0, 0, 40)
+    titleFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    titleFrame.BackgroundTransparency = 0.1
+    titleFrame.BorderSizePixel = 0
+    titleFrame.Parent = sidePanel
+
+    -- Esquinas redondeadas para el título
+    local titleCorner = Instance.new("UICorner")
+    titleCorner.CornerRadius = UDim.new(0, 5)
+    titleCorner.Parent = titleFrame
+
+    -- Texto del título
+    local titleText = Instance.new("TextLabel")
+    titleText.Name = "Title"
+    titleText.Size = UDim2.new(1, -40, 1, 0)
+    titleText.Position = UDim2.new(0, 10, 0, 0)
+    titleText.BackgroundTransparency = 1
+    titleText.Text = "FOOTBALL PRO"
+    titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleText.TextSize = 18
+    titleText.Font = Enum.Font.GothamBold
+    titleText.TextXAlignment = Enum.TextXAlignment.Left
+    titleText.Parent = titleFrame
+
+    -- Botón de configuración
+    local settingsButton = Instance.new("ImageButton")
+    settingsButton.Name = "SettingsButton"
+    settingsButton.Size = UDim2.new(0, 20, 0, 20)
+    settingsButton.Position = UDim2.new(1, -30, 0.5, -10)
+    settingsButton.BackgroundTransparency = 1
+    settingsButton.Image = "rbxassetid://3926307971"
+    settingsButton.ImageRectOffset = Vector2.new(324, 124)
+    settingsButton.ImageRectSize = Vector2.new(36, 36)
+    settingsButton.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    settingsButton.Parent = titleFrame
+
+    -- Contenedor para las categorías del panel lateral
+    local categoriesContainer = Instance.new("Frame")
+    categoriesContainer.Name = "CategoriesContainer"
+    categoriesContainer.Size = UDim2.new(1, 0, 1, -40)
+    categoriesContainer.Position = UDim2.new(0, 0, 0, 40)
+    categoriesContainer.BackgroundTransparency = 1
+    categoriesContainer.Parent = sidePanel
+
     -- Barra horizontal de pestañas en la parte superior
     local topTabsFrame = Instance.new("Frame")
     topTabsFrame.Name = "TopTabsFrame"
@@ -70,8 +101,10 @@ local function CreateUI()
     topTabsFrame.BackgroundTransparency = 1
     topTabsFrame.Parent = screenGui
 
+    -- Contenedores para el contenido de cada categoría
     local contentContainers = {}
 
+    -- Función para seleccionar una categoría
     local function SelectCategory(index)
         for i, tab in ipairs(topTabsFrame:GetChildren()) do
             if tab:IsA("TextButton") then
@@ -83,7 +116,47 @@ local function CreateUI()
         end
     end
 
+    -- Función para arrastrar los menús
+    local function DragMenu(menuFrame)
+        local dragging, dragInput, startPos
+        menuFrame.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = true
+                startPos = input.Position
+                dragInput = input
+            end
+        end)
+
+        menuFrame.InputChanged:Connect(function(input)
+            if dragging and input == dragInput then
+                local delta = input.Position - startPos
+                menuFrame.Position = menuFrame.Position + UDim2.new(0, delta.X, 0, delta.Y)
+            end
+        end)
+
+        menuFrame.InputEnded:Connect(function(input)
+            if input == dragInput then
+                dragging = false
+            end
+        end)
+    end
+
+    -- Crear botones laterales y pestañas superiores para cada categoría
     for i, category in ipairs(categories) do
+        local sideButton = Instance.new("TextButton")
+        sideButton.Name = category.Name .. "Button"
+        sideButton.Size = UDim2.new(1, 0, 0, 30)
+        sideButton.Position = UDim2.new(0, 0, 0, (i-1) * 35)
+        sideButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        sideButton.BackgroundTransparency = i == 1 and 0 or 1
+        sideButton.BorderSizePixel = 0
+        sideButton.Text = "  " .. category.Icon .. " " .. category.Name
+        sideButton.TextColor3 = i == 1 and Color3.fromRGB(0, 255, 128) or Color3.fromRGB(255, 255, 255)
+        sideButton.TextSize = 14
+        sideButton.Font = Enum.Font.Gotham
+        sideButton.TextXAlignment = Enum.TextXAlignment.Left
+        sideButton.Parent = categoriesContainer
+
         -- Crear pestaña superior
         local topTab = Instance.new("TextButton")
         topTab.Name = category.Name .. "Tab"
@@ -98,10 +171,6 @@ local function CreateUI()
         topTab.Font = Enum.Font.GothamSemibold
         topTab.Parent = topTabsFrame
 
-        local tabCorner = Instance.new("UICorner")
-        tabCorner.CornerRadius = UDim.new(0, 5)
-        tabCorner.Parent = topTab
-
         -- Crear contenedor para el contenido de esta categoría
         local contentFrame = Instance.new("Frame")
         contentFrame.Name = category.Name .. "Content"
@@ -110,10 +179,9 @@ local function CreateUI()
         contentFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
         contentFrame.BackgroundTransparency = 0.1
         contentFrame.BorderSizePixel = 0
-        contentFrame.Visible = (i == 1)  -- Solo mostrar la primera categoría al inicio
+        contentFrame.Visible = (i == 1)
         contentFrame.Parent = screenGui
 
-        -- Esquinas redondeadas para el contenedor
         local contentCorner = Instance.new("UICorner")
         contentCorner.CornerRadius = UDim.new(0, 5)
         contentCorner.Parent = contentFrame
@@ -134,20 +202,24 @@ local function CreateUI()
             option.Font = Enum.Font.Gotham
             option.Parent = contentFrame
 
-            -- Esquinas redondeadas para la opción
             local optionCorner = Instance.new("UICorner")
             optionCorner.CornerRadius = UDim.new(0, 4)
             optionCorner.Parent = option
         end
 
-        -- Conectar eventos de clic
+        -- Conectar eventos de clic en los botones laterales
+        sideButton.MouseButton1Click:Connect(function()
+            SelectCategory(i)
+        end)
+
+        -- Conectar eventos de clic en las pestañas superiores
         topTab.MouseButton1Click:Connect(function()
             SelectCategory(i)
         end)
     end
 
-    -- Hacer que los paneles sean arrastrables
-    MakePanelDraggable(topTabsFrame)
+    -- Hacer que el panel lateral sea arrastrable
+    DragMenu(sidePanel)
 
     return screenGui
 end
