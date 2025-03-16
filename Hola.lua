@@ -5,8 +5,8 @@ screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local draggableFrame = Instance.new("Frame")
 draggableFrame.Size = UDim2.new(0, 200, 0, 100)  -- Tamaño del panel
 draggableFrame.Position = UDim2.new(0.5, -100, 0.5, -50)  -- Posición inicial
-draggableFrame.BackgroundColor3 = Color3.fromRGB(169, 169, 169)  -- Color gris
-draggableFrame.BackgroundTransparency = 0.5  -- Transparencia (0 es opaco, 1 es completamente transparente)
+draggableFrame.BackgroundColor3 = Color3.fromRGB(128, 128, 128)  -- Color gris
+draggableFrame.BackgroundTransparency = 0.4  -- Transparencia (0 es opaco, 1 es completamente transparente)
 draggableFrame.Parent = screenGui
 
 -- Crear la funcionalidad arrastrable
