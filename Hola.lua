@@ -60,7 +60,7 @@ do
                     Name = "Container",
                     Size = UDim2.new(1, -30, 1, 0),
                     Position = UDim2.new(0, 20, 0, 20),
-                    BackgroundTransparency = 0.5,
+                    BackgroundTransparency = 1,
                     Active = false,
                 }),
                 Parent = game:GetService("CoreGui"),
@@ -81,21 +81,29 @@ do
             Parent = library.container,
         })
 
-        -- 🔹 Efecto de Blur
-        local blurEffect = Instance.new("UIBlurEffect")
-        blurEffect.Size = 15
-        blurEffect.Parent = window
-
         -- 🔹 Bordes Redondeados
         local roundCorner = Instance.new("UICorner")
-        roundCorner.CornerRadius = UDim.new(0, 10)
+        roundCorner.CornerRadius = UDim.new(0, 8) -- Bordes más suaves
         roundCorner.Parent = window
+
+        -- 🔹 Efecto de Blur en un Frame adicional
+        local blurBackground = library:Create("Frame", {
+            Name = "BlurEffect",
+            Parent = window,
+            BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+            Size = UDim2.new(1, 0, 1, 0),
+            BackgroundTransparency = 0.3, -- Ajustado para mejor visibilidad
+        })
+
+        local blurCorner = Instance.new("UICorner")
+        blurCorner.CornerRadius = UDim.new(0, 8)
+        blurCorner.Parent = blurBackground
 
         library:Create("TextLabel", {
             Text = name,
             Size = UDim2.new(1, -10, 1, 0),
             Position = UDim2.new(0, 5, 0, 0),
-            BackgroundTransparency = 0.5,
+            BackgroundTransparency = 1,
             Font = Enum.Font.Gotham,
             TextSize = 18,
             TextColor3 = library.options.textcolor,
@@ -108,7 +116,7 @@ do
         local window_toggle = library:Create("TextButton", {
             Size = UDim2.new(0, 30, 0, 30),
             Position = UDim2.new(1, -35, 0, 0),
-            BackgroundTransparency = 0.5,
+            BackgroundTransparency = 1,
             Text = "-",
             TextSize = 18,
             Font = Enum.Font.GothamBold,
@@ -127,6 +135,10 @@ do
             ClipsDescendants = true,
             Parent = window,
         })
+
+        local containerCorner = Instance.new("UICorner")
+        containerCorner.CornerRadius = UDim.new(0, 8)
+        containerCorner.Parent = container
 
         local listLayout = library:Create("UIListLayout", {
             Name = "List",
