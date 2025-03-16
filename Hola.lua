@@ -1,6 +1,3 @@
--- VapeStyleUI.lua
--- UI estilo VAPE para un juego de fútbol en Roblox
-
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
@@ -22,6 +19,37 @@ local categories = {
     {Name = "Goalkeeping", Icon = "👐"},
     {Name = "Visuals", Icon = "👁"}
 }
+
+-- Función para hacer que los paneles sean arrastrables
+local function MakePanelDraggable(panel)
+    local dragInput, mousePos, panelPos
+    local dragging = false
+
+    local function onInputBegan(input, gameProcessed)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            mousePos = input.Position
+            panelPos = panel.Position
+        end
+    end
+
+    local function onInputChanged(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - mousePos
+            panel.Position = UDim2.new(panelPos.X.Scale, panelPos.X.Offset + delta.X, panelPos.Y.Scale, panelPos.Y.Offset + delta.Y)
+        end
+    end
+
+    local function onInputEnded(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end
+
+    panel.InputBegan:Connect(onInputBegan)
+    panel.InputChanged:Connect(onInputChanged)
+    panel.InputEnded:Connect(onInputEnded)
+end
 
 -- Función para crear la UI
 local function CreateUI()
@@ -56,6 +84,7 @@ local function CreateUI()
     end
 
     for i, category in ipairs(categories) do
+        -- Crear pestaña superior
         local topTab = Instance.new("TextButton")
         topTab.Name = category.Name .. "Tab"
         topTab.Size = UDim2.new(1/#categories, -5, 1, 0)
@@ -73,6 +102,7 @@ local function CreateUI()
         tabCorner.CornerRadius = UDim.new(0, 5)
         tabCorner.Parent = topTab
 
+        -- Crear contenedor para el contenido de esta categoría
         local contentFrame = Instance.new("Frame")
         contentFrame.Name = category.Name .. "Content"
         contentFrame.Size = UDim2.new(0, 200, 0, 300)
@@ -80,60 +110,49 @@ local function CreateUI()
         contentFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
         contentFrame.BackgroundTransparency = 0.1
         contentFrame.BorderSizePixel = 0
-        contentFrame.Visible = (i == 1)
+        contentFrame.Visible = (i == 1)  -- Solo mostrar la primera categoría al inicio
         contentFrame.Parent = screenGui
 
+        -- Esquinas redondeadas para el contenedor
         local contentCorner = Instance.new("UICorner")
         contentCorner.CornerRadius = UDim.new(0, 5)
         contentCorner.Parent = contentFrame
 
         contentContainers[i] = contentFrame
 
+        -- Añadir opciones para esta categoría
+        for j = 1, 5 do
+            local option = Instance.new("TextButton")
+            option.Name = "Option" .. j
+            option.Size = UDim2.new(1, -20, 0, 30)
+            option.Position = UDim2.new(0, 10, 0, (j-1) * 35 + 10)
+            option.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            option.BackgroundTransparency = 0.5
+            option.Text = category.Name .. " Option " .. j
+            option.TextColor3 = Color3.fromRGB(255, 255, 255)
+            option.TextSize = 14
+            option.Font = Enum.Font.Gotham
+            option.Parent = contentFrame
+
+            -- Esquinas redondeadas para la opción
+            local optionCorner = Instance.new("UICorner")
+            optionCorner.CornerRadius = UDim.new(0, 4)
+            optionCorner.Parent = option
+        end
+
+        -- Conectar eventos de clic
         topTab.MouseButton1Click:Connect(function()
             SelectCategory(i)
         end)
-
-        -- Función para arrastrar pestañas
-        local dragging
-        local dragInput
-        local dragStart
-        local startPos
-
-        local function updateInput(input)
-            local delta = input.Position - dragStart
-            topTab.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
-        end
-
-        topTab.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging = true
-                dragStart = input.Position
-                startPos = topTab.Position
-
-                input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        dragging = false
-                    end
-                end)
-            end
-        end)
-
-        topTab.InputChanged:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseMovement then
-                dragInput = input
-            end
-        end)
-
-        UserInputService.InputChanged:Connect(function(input)
-            if input == dragInput and dragging then
-                updateInput(input)
-            end
-        end)
     end
+
+    -- Hacer que los paneles sean arrastrables
+    MakePanelDraggable(topTabsFrame)
 
     return screenGui
 end
 
+-- Función para mostrar/ocultar la UI
 function ToggleUI()
     if uiVisible then
         if mainGui then
@@ -147,15 +166,19 @@ function ToggleUI()
     end
 end
 
+-- Conectar la tecla P para mostrar/ocultar la UI
 local function onInputBegan(input, gameProcessed)
     if not gameProcessed and input.KeyCode == Enum.KeyCode.P then
         ToggleUI()
     end
 end
 
+-- Conectar el evento de entrada
 UserInputService.InputBegan:Connect(onInputBegan)
 
+-- Mostrar la UI inicialmente
 mainGui = CreateUI()
 uiVisible = true
 
+-- Mensaje para confirmar que el script se ha cargado
 print("FootballUI script loaded. Press P to toggle UI.")
