@@ -10,13 +10,20 @@ frame.BackgroundColor3 = Color3.fromRGB(169, 169, 169) -- Gris
 frame.BackgroundTransparency = 0.5 -- 50% transparente
 frame.Parent = screenGui
 
+-- Crear un pequeño cuadro para que sirva como área de arrastre
+local dragBar = Instance.new("Frame")
+dragBar.Size = UDim2.new(1, 0, 0, 30)  -- Tamaño de la barra de arrastre
+dragBar.BackgroundColor3 = Color3.fromRGB(100, 100, 100)  -- Color de la barra de arrastre
+dragBar.Position = UDim2.new(0, 0, 0, 0) -- Colocarlo en la parte superior del frame
+dragBar.Parent = frame
+
 -- Variables para controlar el arrastre
 local dragging = false
 local dragStart = nil
 local startPos = nil
 
--- Conectar la función de arrastre al Frame
-frame.InputBegan:Connect(function(input)
+-- Función para empezar a arrastrar
+dragBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragStart = input.Position
@@ -24,14 +31,16 @@ frame.InputBegan:Connect(function(input)
     end
 end)
 
-frame.InputChanged:Connect(function(input)
+-- Función para mover el frame durante el arrastre
+dragBar.InputChanged:Connect(function(input)
     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
         frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
 
-frame.InputEnded:Connect(function(input)
+-- Función para terminar el arrastre
+dragBar.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = false
     end
